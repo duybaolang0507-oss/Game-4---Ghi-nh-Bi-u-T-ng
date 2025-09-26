@@ -9,7 +9,7 @@ const cardPairs = [
   { icon: "🏨", text: "Khách sạn Omni Parker House" }
 ];
 
-// Tạo 16 thẻ (8 icon + 8 text)
+// Tạo 16 thẻ (8 emoji + 8 text)
 let cards = [];
 cardPairs.forEach((pair, index) => {
   cards.push({ id: index, content: pair.icon });
@@ -30,11 +30,10 @@ function createCard(cardData) {
   card.dataset.id = cardData.id;
   card.dataset.content = cardData.content;
 
- card.innerHTML = `
-  <span class="front"></span>
-  <span class="back">${cardData.content}</span>
-`;
-
+  card.innerHTML = `
+    <span class="front">?</span>
+    <span class="back">${cardData.content}</span>
+  `;
 
   card.addEventListener("click", handleCardClick);
   gameBoard.appendChild(card);
@@ -43,9 +42,9 @@ function createCard(cardData) {
 function handleCardClick(e) {
   const clickedCard = e.currentTarget;
 
-  if (lockBoard) return;                    // 🚨 chặn nếu đang khóa
-  if (clickedCard === firstCard) return;    // 🚨 không cho click lại cùng thẻ
-  if (clickedCard.classList.contains("flipped")) return; // 🚨 tránh bug double flip
+  if (lockBoard) return;                        // đang khóa -> bỏ qua
+  if (clickedCard === firstCard) return;        // click lại cùng thẻ -> bỏ qua
+  if (clickedCard.classList.contains("flipped")) return; // đã lật rồi -> bỏ qua
 
   clickedCard.classList.add("flipped");
 
@@ -54,7 +53,7 @@ function handleCardClick(e) {
     return;
   }
 
-  // Khi đã có thẻ thứ 2 → khóa bàn NGAY LẬP TỨC
+  // chọn thẻ thứ 2 -> khóa ngay
   secondCard = clickedCard;
   lockBoard = true;
 
@@ -87,9 +86,8 @@ function unflipCards() {
 
 function resetBoard() {
   [firstCard, secondCard] = [null, null];
-  lockBoard = false;  // 🔓 mở khóa sau khi xử lý xong
+  lockBoard = false; // mở khóa
 }
 
 // Khởi tạo game
 cards.forEach(createCard);
-
