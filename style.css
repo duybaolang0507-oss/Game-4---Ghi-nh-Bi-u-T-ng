@@ -1,0 +1,40 @@
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background: url("BG.jpg") no-repeat center center fixed;
+background-size: cover;
+
+}
+
+h1 {
+  margin-top: 20px;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(4, 120px);
+  grid-gap: 12px;
+  justify-content: center;
+  margin: 20px auto;
+}
+
+.card {
+  width: 120px;
+  height: 120px;
+  background: #3498db;
+  color: white;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 10px;
+  user-select: none;
+  text-align: center;
+  padding: 5px;
+  transition: background 0.3s;
+}
+
+.card.flipped {
+  background: #2ecc71;
+}
