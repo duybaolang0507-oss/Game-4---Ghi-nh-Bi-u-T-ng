@@ -9,18 +9,19 @@ const cardPairs = [
   { icon: "🏨", text: "Khách sạn Omni Parker House" }
 ];
 
-// Tạo mảng thẻ gồm cả icon và text
+// Tạo mảng 16 thẻ (8 icon + 8 text)
 let cards = [];
 cardPairs.forEach((pair, index) => {
   cards.push({ id: index, content: pair.icon });
   cards.push({ id: index, content: pair.text });
 });
 
-// Trộn mảng thẻ
+// Trộn ngẫu nhiên
 cards.sort(() => 0.5 - Math.random());
 
 const gameBoard = document.getElementById("game-board");
 let firstCard = null;
+let secondCard = null;
 let lockBoard = false;
 
 function createCard(cardData) {
@@ -36,8 +37,8 @@ function createCard(cardData) {
 }
 
 function flipCard() {
-  if (lockBoard) return;
-  if (this === firstCard) return;
+  if (lockBoard) return;               // không cho lật nếu đang khóa
+  if (this === firstCard) return;      // không cho lật 2 lần cùng thẻ
 
   this.classList.add("flipped");
 
@@ -46,25 +47,40 @@ function flipCard() {
     return;
   }
 
-  const secondCard = this;
-  checkMatch(firstCard, secondCard);
+  secondCard = this;
+  lockBoard = true;   // 🚨 khóa ngay khi có 2 thẻ
+
+  checkMatch();
 }
 
-function checkMatch(card1, card2) {
-  if (card1.dataset.id === card2.dataset.id) {
-    // Giữ nguyên nếu khớp
-    firstCard = null;
+function checkMatch() {
+  const isMatch = firstCard.dataset.id === secondCard.dataset.id;
+
+  if (isMatch) {
+    disableCards();
   } else {
-    // Lật lại nếu sai
-    lockBoard = true;
-    setTimeout(() => {
-      card1.classList.remove("flipped");
-      card2.classList.remove("flipped");
-      lockBoard = false;
-      firstCard = null;
-    }, 1000);
+    unflipCards();
   }
 }
 
-// Tạo bàn chơi
+function disableCards() {
+  firstCard.removeEventListener("click", flipCard);
+  secondCard.removeEventListener("click", flipCard);
+  resetBoard();
+}
+
+function unflipCards() {
+  setTimeout(() => {
+    firstCard.classList.remove("flipped");
+    secondCard.classList.remove("flipped");
+    resetBoard();
+  }, 1000);
+}
+
+function resetBoard() {
+  [firstCard, secondCard] = [null, null];
+  lockBoard = false;  // 🔑 mở khóa khi xử lý xong
+}
+
+// Khởi tạo game
 cards.forEach(createCard);
