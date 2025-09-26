@@ -1,82 +1,70 @@
-// Danh sách 8 cặp (emoji + text)
-const pairs = [
-  { name: "statue", emoji: "🗽", text: "Tượng Nữ thần Tự do" },
-  { name: "lynching", emoji: "🔥", text: "Hành hình kiểu Linsơ" },
-  { name: "movement", emoji: "✊", text: "Phong trào đấu tranh" },
-  { name: "justice", emoji: "⚖️", text: "Bất công & Phân biệt chủng tộc" },
-  { name: "declaration", emoji: "📜", text: "Tuyên ngôn Độc lập 1776." },
-  { name: "solidarity", emoji: "🌍", text: "Đoàn kết quốc tế" },
-  { name: "landmark", emoji: "🏛️", text: "Thăm địa danh lịch sử" },
-  { name: "hotel", emoji: "🏨", text: "Khách sạn Omni Parker House" }
+const cardPairs = [
+  { icon: "🗽", text: "Tượng Nữ thần Tự do" },
+  { icon: "🔥", text: "Hành hình kiểu Linsơ" },
+  { icon: "✊", text: "Phong trào đấu tranh" },
+  { icon: "⚖️", text: "Bất công & Phân biệt chủng tộc" },
+  { icon: "📜", text: "Tuyên ngôn Độc lập 1776." },
+  { icon: "🌍", text: "Đoàn kết quốc tế" },
+  { icon: "🏛️", text: "Thăm địa danh lịch sử" },
+  { icon: "🏨", text: "Khách sạn Omni Parker House" }
 ];
 
-// Tạo mảng 16 thẻ: 1 emoji + 1 text cho mỗi name
-let gameArray = [];
-pairs.forEach(pair => {
-  gameArray.push({ name: pair.name, type: "emoji", content: pair.emoji });
-  gameArray.push({ name: pair.name, type: "text", content: pair.text });
+// Tạo mảng thẻ gồm cả icon và text
+let cards = [];
+cardPairs.forEach((pair, index) => {
+  cards.push({ id: index, content: pair.icon });
+  cards.push({ id: index, content: pair.text });
 });
 
-// Trộn ngẫu nhiên
-gameArray.sort(() => 0.5 - Math.random());
+// Trộn mảng thẻ
+cards.sort(() => 0.5 - Math.random());
 
-const grid = document.querySelector("#game-board");
-let chosenCards = [];
-let chosenCardsId = [];
-let matchedCards = [];
+const gameBoard = document.getElementById("game-board");
+let firstCard = null;
+let lockBoard = false;
 
-// Tạo board
-function createBoard() {
-  gameArray.forEach((item, index) => {
-    const card = document.createElement("div");
-    card.setAttribute("class", "card");
-    card.setAttribute("data-id", index);
-    card.innerHTML = "❓";
-    card.addEventListener("click", flipCard);
-    grid.appendChild(card);
-  });
+function createCard(cardData) {
+  const card = document.createElement("div");
+  card.classList.add("card");
+  card.dataset.id = cardData.id;
+  card.dataset.content = cardData.content;
+
+  card.innerHTML = `<span class="front"></span><span class="back">${cardData.content}</span>`;
+
+  card.addEventListener("click", flipCard);
+  gameBoard.appendChild(card);
 }
 
-// Lật thẻ
 function flipCard() {
-  let cardId = this.getAttribute("data-id");
+  if (lockBoard) return;
+  if (this === firstCard) return;
 
-  // không cho lật lại thẻ đã khớp hoặc đang chọn
-  if (chosenCardsId.includes(cardId) || matchedCards.includes(cardId)) return;
+  this.classList.add("flipped");
 
-  chosenCards.push(gameArray[cardId]);
-  chosenCardsId.push(cardId);
-  this.innerHTML = gameArray[cardId].content;
-
-  if (chosenCards.length === 2) {
-    setTimeout(checkMatch, 600);
+  if (!firstCard) {
+    firstCard = this;
+    return;
   }
+
+  const secondCard = this;
+  checkMatch(firstCard, secondCard);
 }
 
-// Kiểm tra cặp
-function checkMatch() {
-  const cards = document.querySelectorAll(".card");
-  const [card1, card2] = chosenCards;
-  const [id1, id2] = chosenCardsId;
-
-  if (
-    card1.name === card2.name && // cùng name
-    card1.type !== card2.type    // nhưng phải khác loại (emoji vs text)
-  ) {
-    // đúng cặp
-    matchedCards.push(id1, id2);
+function checkMatch(card1, card2) {
+  if (card1.dataset.id === card2.dataset.id) {
+    // Giữ nguyên nếu khớp
+    firstCard = null;
   } else {
-    // úp lại
-    cards[id1].innerHTML = "❓";
-    cards[id2].innerHTML = "❓";
-  }
-
-  chosenCards = [];
-  chosenCardsId = [];
-
-  if (matchedCards.length === gameArray.length) {
-    setTimeout(() => alert("🎉 Bạn đã thắng!"), 300);
+    // Lật lại nếu sai
+    lockBoard = true;
+    setTimeout(() => {
+      card1.classList.remove("flipped");
+      card2.classList.remove("flipped");
+      lockBoard = false;
+      firstCard = null;
+    }, 1000);
   }
 }
 
-createBoard();
+// Tạo bàn chơi
+cards.forEach(createCard);
