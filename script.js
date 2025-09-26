@@ -30,7 +30,11 @@ function createCard(cardData) {
   card.dataset.id = cardData.id;
   card.dataset.content = cardData.content;
 
-  card.innerHTML = `<span class="front"></span><span class="back">${cardData.content}</span>`;
+ card.innerHTML = `
+  <span class="front"></span>
+  <span class="back">${cardData.content}</span>
+`;
+
 
   card.addEventListener("click", handleCardClick);
   gameBoard.appendChild(card);
@@ -88,3 +92,4 @@ function resetBoard() {
 
 // Khởi tạo game
 cards.forEach(createCard);
+
