@@ -1,96 +1,69 @@
-const board = document.getElementById("game-board");
-const restartBtn = document.getElementById("restart");
-
-let cards = [
-  "🗽", "Tượng Nữ thần Tự do",
-  "🔥", "Hành hình kiểu Linsơ",
-  "✊", "Phong trào đấu tranh",
-  "⚖️", "Bất công & Phân biệt chủng tộc",
-  "📜", "Tuyên ngôn Độc lập 1776.",
-  "🌍", "Đoàn kết quốc tế",
-  "🏛️", "Thăm địa danh lịch sử",
-  "🏨", "Khách sạn Omni Parker House"
+const cardArray = [
+  { name: "statue", content: "🗽 Tượng Nữ thần Tự do" },
+  { name: "lynching", content: "🔥 Hành hình kiểu Linsơ" },
+  { name: "movement", content: "✊ Phong trào đấu tranh" },
+  { name: "justice", content: "⚖️ Bất công & Phân biệt chủng tộc" },
+  { name: "declaration", content: "📜 Tuyên ngôn Độc lập 1776." },
+  { name: "solidarity", content: "🌍 Đoàn kết quốc tế" },
+  { name: "landmark", content: "🏛️ Thăm địa danh lịch sử" },
+  { name: "hotel", content: "🏨 Khách sạn Omni Parker House" }
 ];
 
-let flippedCards = [];
-let matched = 0;
+// 👉 tạo 8 cặp = nhân đôi danh sách
+let gameArray = [...cardArray, ...cardArray];
 
-// Shuffle cards
-function shuffle(array) {
-  return array.sort(() => Math.random() - 0.5);
-}
+// 👉 trộn ngẫu nhiên
+gameArray.sort(() => 0.5 - Math.random());
 
-// Render board
+const grid = document.querySelector("#game-board");
+let chosenCards = [];
+let chosenCardsId = [];
+let matchedCards = [];
+
+// tạo thẻ
 function createBoard() {
-  board.innerHTML = "";
-  matched = 0;
-  flippedCards = [];
-  shuffle(cards.concat(cards)).slice(0,16).forEach(value => {
+  gameArray.forEach((item, index) => {
     const card = document.createElement("div");
-    card.classList.add("card");
-    card.dataset.value = value;
-    card.innerText = "?";
+    card.setAttribute("class", "card");
+    card.setAttribute("data-id", index);
+    card.innerHTML = "❓";
     card.addEventListener("click", flipCard);
-    board.appendChild(card);
+    grid.appendChild(card);
   });
 }
 
-// Flip card
+// lật thẻ
 function flipCard() {
-  if (this.classList.contains("flipped") || flippedCards.length === 2) return;
+  let cardId = this.getAttribute("data-id");
+  if (chosenCardsId.includes(cardId) || matchedCards.includes(cardId)) return;
 
-  this.classList.add("flipped");
-  this.innerText = this.dataset.value;
-  flippedCards.push(this);
+  chosenCards.push(gameArray[cardId].content);
+  chosenCardsId.push(cardId);
+  this.innerHTML = gameArray[cardId].content;
 
-  if (flippedCards.length === 2) {
-    checkMatch();
+  if (chosenCards.length === 2) {
+    setTimeout(checkMatch, 500);
   }
 }
 
-// Check match
+// kiểm tra trùng khớp
 function checkMatch() {
-  const [card1, card2] = flippedCards;
+  const cards = document.querySelectorAll(".card");
+  const [id1, id2] = chosenCardsId;
 
-  // Rule: match if one is emoji and one is its text
-  let isPair = false;
-  const pairs = {
-    "🗽": "Tượng Nữ thần Tự do",
-    "🔥": "Hành hình kiểu Linsơ",
-    "✊": "Phong trào đấu tranh",
-    "⚖️": "Bất công & Phân biệt chủng tộc",
-    "📜": "Tuyên ngôn Độc lập 1776.",
-    "🌍": "Đoàn kết quốc tế",
-    "🏛️": "Thăm địa danh lịch sử",
-    "🏨": "Khách sạn Omni Parker House"
-  };
-
-  if (pairs[card1.dataset.value] === card2.dataset.value ||
-      pairs[card2.dataset.value] === card1.dataset.value) {
-    isPair = true;
+  if (gameArray[id1].name === gameArray[id2].name) {
+    matchedCards.push(id1, id2);
+  } else {
+    cards[id1].innerHTML = "❓";
+    cards[id2].innerHTML = "❓";
   }
 
-  if (isPair) {
-    matched += 2;
-    flippedCards = [];
-    if (matched === 16) {
-      setTimeout(() => alert("🎉 Bạn đã thắng!"), 300);
-    }
-  } else {
-    setTimeout(() => {
-      card1.classList.remove("flipped");
-      card2.classList.remove("flipped");
-      card1.innerText = "?";
-      card2.innerText = "?";
-      flippedCards = [];
-    }, 1000);
+  chosenCards = [];
+  chosenCardsId = [];
+
+  if (matchedCards.length === gameArray.length) {
+    setTimeout(() => alert("🎉 Bạn đã thắng!"), 300);
   }
 }
 
-// Restart game
-restartBtn.addEventListener("click", () => {
-  createBoard();
-});
-
-// Start
 createBoard();
