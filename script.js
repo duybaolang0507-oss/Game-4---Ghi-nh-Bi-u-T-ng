@@ -1,4 +1,4 @@
-// Danh sách 8 cặp: mỗi cặp có emoji và nội dung
+// Danh sách 8 cặp (emoji + text)
 const pairs = [
   { name: "statue", emoji: "🗽", text: "Tượng Nữ thần Tự do" },
   { name: "lynching", emoji: "🔥", text: "Hành hình kiểu Linsơ" },
@@ -10,11 +10,11 @@ const pairs = [
   { name: "hotel", emoji: "🏨", text: "Khách sạn Omni Parker House" }
 ];
 
-// Tạo mảng game gồm 16 thẻ (8 emoji + 8 text)
+// Tạo mảng 16 thẻ: 1 emoji + 1 text cho mỗi name
 let gameArray = [];
 pairs.forEach(pair => {
-  gameArray.push({ name: pair.name, content: pair.emoji });
-  gameArray.push({ name: pair.name, content: pair.text });
+  gameArray.push({ name: pair.name, type: "emoji", content: pair.emoji });
+  gameArray.push({ name: pair.name, type: "text", content: pair.text });
 });
 
 // Trộn ngẫu nhiên
@@ -40,6 +40,8 @@ function createBoard() {
 // Lật thẻ
 function flipCard() {
   let cardId = this.getAttribute("data-id");
+
+  // không cho lật lại thẻ đã khớp hoặc đang chọn
   if (chosenCardsId.includes(cardId) || matchedCards.includes(cardId)) return;
 
   chosenCards.push(gameArray[cardId]);
@@ -57,7 +59,10 @@ function checkMatch() {
   const [card1, card2] = chosenCards;
   const [id1, id2] = chosenCardsId;
 
-  if (card1.name === card2.name && id1 !== id2) {
+  if (
+    card1.name === card2.name && // cùng name
+    card1.type !== card2.type    // nhưng phải khác loại (emoji vs text)
+  ) {
     // đúng cặp
     matchedCards.push(id1, id2);
   } else {
